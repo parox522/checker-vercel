@@ -99,7 +99,7 @@ def check_card():
         payload["gate"] = gate
 
     try:
-        resp = requests.post(f"{API_BASE}/charge", headers=headers, json=payload, timeout=8)
+        resp = requests.post(f"{API_BASE}/charge", headers=headers, json=payload, timeout=55)
         result = resp.json()
         send_discord_webhook(card, result, "Admin" if role == "admin" else "Kullanıcı")
         return jsonify(result)
