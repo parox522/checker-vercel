@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CC Checker</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+::selection{background:rgba(102,126,234,0.3);color:#fff}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:#07080b;color:#e8eaed;min-height:100vh;overflow-x:hidden}
+.bg-glow{position:fixed;top:-300px;left:-300px;width:800px;height:800px;background:radial-gradient(circle,rgba(102,126,234,0.08) 0%,transparent 70%);border-radius:50%;pointer-events:none;animation:floatGlow 8s ease-in-out infinite alternate}
+.bg-glow2{position:fixed;bottom:-400px;right:-300px;width:900px;height:900px;background:radial-gradient(circle,rgba(118,75,162,0.08) 0%,transparent 70%);border-radius:50%;pointer-events:none;animation:floatGlow 10s ease-in-out infinite alternate-reverse}
+@keyframes floatGlow{0%{transform:translate(0,0) scale(1)}100%{transform:translate(100px,60px) scale(1.1)}}
+.container{position:relative;z-index:1;width:100%;max-width:960px;margin:0 auto;padding:30px 20px 60px}
+.header{text-align:center;margin-bottom:36px}
+.header-icon{font-size:42px;margin-bottom:10px;display:block;filter:drop-shadow(0 0 20px rgba(102,126,234,0.3))}
+.header h1{font-size:32px;font-weight:900;letter-spacing:-1px;background:linear-gradient(135deg,#667eea,#a78bfa,#764ba2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.header p{color:#6b7280;font-size:14px;margin-top:6px}
+.stats-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px}
+.stat-card{background:rgba(19,22,27,0.6);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(30,35,48,0.8);border-radius:16px;padding:18px 20px;display:flex;align-items:center;gap:14px;transition:all 0.3s;cursor:default}
+.stat-card:hover{border-color:rgba(102,126,234,0.2);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,0.3)}
+.stat-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.stat-icon.blue{background:rgba(102,126,234,0.15)}
+.stat-icon.purple{background:rgba(167,139,250,0.15)}
+.stat-icon.green{background:rgba(52,211,153,0.15)}
+.stat-info{min-width:0}
+.stat-value{font-size:20px;font-weight:800;color:#e8eaed;letter-spacing:-0.3px;line-height:1.2}
+.stat-label{font-size:11px;font-weight:500;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px}
+.main-card{background:rgba(19,22,27,0.6);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(30,35,48,0.8);border-radius:20px;padding:32px;margin-bottom:16px;transition:border-color 0.3s}
+.main-card:focus-within{border-color:rgba(102,126,234,0.3)}
+.form-label{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.form-label span{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:#9ca3af}
+.form-label .hint{font-size:11px;font-weight:400;text-transform:none;color:#6b7280;cursor:pointer;border-bottom:1px dashed #4b5563}
+.form-label .hint:hover{color:#9ca3af;border-color:#6b7280}
+.input-group{display:flex;gap:12px;flex-wrap:wrap}
+.input-wrapper{flex:3;min-width:240px;position:relative}
+.input-wrapper input{width:100%;padding:14px 16px;background:rgba(10,11,14,0.8);border:1px solid #1e2330;border-radius:12px;color:#e8eaed;font-size:15px;font-family:'Inter','Courier New',monospace;letter-spacing:0.5px;transition:all 0.25s;outline:none}
+.input-wrapper input:focus{border-color:#667eea;box-shadow:0 0 0 4px rgba(102,126,234,0.1)}
+.input-wrapper input::placeholder{color:#4b5563;letter-spacing:0;font-family:'Inter',sans-serif}
+.input-format-hint{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.input-format-hint .tag{font-size:10px;padding:4px 10px;border-radius:6px;background:rgba(30,35,48,0.6);color:#6b7280;font-weight:500;letter-spacing:0.3px;border:1px solid rgba(30,35,48,0.8);transition:all 0.2s}
+.input-format-hint .tag.active{color:#667eea;border-color:rgba(102,126,234,0.3);background:rgba(102,126,234,0.08)}
+.select-wrapper{flex:1;min-width:140px}
+.select-wrapper select{width:100%;padding:14px 16px;background:rgba(10,11,14,0.8);border:1px solid #1e2330;border-radius:12px;color:#e8eaed;font-size:14px;font-family:'Inter',sans-serif;transition:all 0.25s;outline:none;cursor:pointer;-webkit-appearance:none;appearance:none}
+.select-wrapper select:focus{border-color:#667eea;box-shadow:0 0 0 4px rgba(102,126,234,0.1)}
+.btn-check{width:100%;padding:15px;margin-top:20px;background:linear-gradient(135deg,#667eea,#764ba2);border:none;border-radius:12px;color:white;font-size:15px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:all 0.25s;display:flex;align-items:center;justify-content:center;gap:10px;position:relative;overflow:hidden}
+.btn-check::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.06),transparent);transition:left 0.5s}
+.btn-check:hover::before{left:100%}
+.btn-check:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(102,126,234,0.25)}
+.btn-check:active{transform:translateY(0)}
+.btn-check:disabled{opacity:0.4;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-check:disabled::before{display:none}
+.btn-check .spinner{display:none;width:18px;height:18px;border:2px solid rgba(255,255,255,0.15);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite}
+.btn-check.loading .spinner{display:block}
+.btn-check.loading .btn-text{display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.shortcuts{display:flex;gap:8px;margin-top:12px;justify-content:center;flex-wrap:wrap}
+.shortcuts kbd{font-size:11px;padding:4px 10px;border-radius:6px;background:rgba(30,35,48,0.4);border:1px solid rgba(30,35,48,0.8);color:#6b7280;font-family:'Inter',sans-serif;cursor:pointer;transition:all 0.2s}
+.shortcuts kbd:hover{background:rgba(102,126,234,0.1);color:#a78bfa;border-color:rgba(102,126,234,0.2)}
+.result-area{display:none;margin-top:24px}
+.result-area.show{display:block;animation:fadeUp 0.4s cubic-bezier(0.16,1,0.3,1)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.result-card{background:rgba(10,11,14,0.8);border:1px solid #1e2330;border-radius:16px;padding:24px;position:relative;overflow:hidden}
+.result-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;transition:background 0.4s}
+.result-card.status-approved::before{background:linear-gradient(90deg,#4ade80,#22d3ee)}
+.result-card.status-declined::before{background:linear-gradient(90deg,#f87171,#fb923c)}
+.result-card.status-error::before{background:linear-gradient(90deg,#fbbf24,#f87171)}
+.result-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid rgba(30,35,48,0.6);gap:12px}
+.result-status-badge{display:flex;align-items:center;gap:10px}
+.result-status-badge .badge-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.badge-icon.approved{background:rgba(74,222,128,0.12)}
+.badge-icon.declined{background:rgba(248,113,113,0.12)}
+.badge-icon.error{background:rgba(251,191,36,0.12)}
+.result-status-badge .badge-text{font-size:18px;font-weight:800;letter-spacing:-0.3px}
+.badge-text.approved{color:#4ade80}
+.badge-text.declined{color:#f87171}
+.badge-text.error{color:#fbbf24}
+.result-message{font-size:13px;color:#9ca3af;text-align:right;max-width:50%}
+.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.result-item{background:rgba(19,22,27,0.4);border:1px solid rgba(30,35,48,0.6);border-radius:10px;padding:12px 14px;transition:border-color 0.2s}
+.result-item:hover{border-color:rgba(30,35,48,1)}
+.result-item .r-label{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:#6b7280;margin-bottom:4px}
+.result-item .r-value{font-size:13px;font-weight:600;color:#e8eaed;word-break:break-all}
+.result-item .r-value.mono{font-family:'Courier New',monospace;letter-spacing:0.5px}
+.result-actions{display:flex;gap:8px;margin-top:16px;justify-content:flex-end}
+.result-actions button{padding:6px 14px;border-radius:8px;border:1px solid #1e2330;background:rgba(19,22,27,0.6);color:#9ca3af;font-size:11px;font-weight:500;font-family:'Inter',sans-serif;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:6px}
+.result-actions button:hover{border-color:rgba(102,126,234,0.3);color:#a78bfa;background:rgba(102,126,234,0.06)}
+.history-section{margin-top:28px}
+.history-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.history-header h3{font-size:13px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px}
+.history-header .count{font-size:11px;color:#6b7280}
+.history-list{display:flex;flex-direction:column;gap:4px;max-height:280px;overflow-y:auto;padding-right:4px}
+.history-list::-webkit-scrollbar{width:3px}
+.history-list::-webkit-scrollbar-track{background:transparent}
+.history-list::-webkit-scrollbar-thumb{background:#1e2330;border-radius:4px}
+.history-item{display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;padding:8px 12px;background:rgba(10,11,14,0.5);border:1px solid rgba(30,35,48,0.6);border-radius:8px;font-size:12px;animation:fadeUp 0.2s;transition:border-color 0.2s}
+.history-item:hover{border-color:rgba(30,35,48,1)}
+.history-item .h-emoji{font-size:14px;width:20px;text-align:center;flex-shrink:0}
+.history-item .h-card{font-family:'Courier New',monospace;color:#d1d5db;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.history-item .h-msg{color:#6b7280;font-size:11px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.history-item .h-time{color:#4b5563;font-size:10px;white-space:nowrap;flex-shrink:0}
+.history-empty{text-align:center;padding:24px;color:#4b5563;font-size:13px}
+.guide-section{margin-top:28px}
+.guide-section h3{font-size:13px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px}
+.guide-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.guide-card{background:rgba(19,22,27,0.4);border:1px solid rgba(30,35,48,0.6);border-radius:12px;padding:16px 18px;transition:all 0.2s}
+.guide-card:hover{border-color:rgba(30,35,48,1);transform:translateY(-1px)}
+.guide-card .g-icon{font-size:18px;margin-bottom:8px}
+.guide-card h4{font-size:13px;font-weight:600;color:#e8eaed;margin-bottom:4px}
+.guide-card p{font-size:12px;color:#6b7280;line-height:1.5}
+.guide-card code{font-size:11px;background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:4px;color:#a78bfa;font-family:'Courier New',monospace}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(80px);background:rgba(19,22,27,0.95);backdrop-filter:blur(20px);border:1px solid rgba(30,35,48,0.8);padding:12px 24px;border-radius:12px;color:#e8eaed;font-size:13px;font-weight:500;opacity:0;transition:all 0.4s cubic-bezier(0.16,1,0.3,1);z-index:100;pointer-events:none;display:flex;align-items:center;gap:8px}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.user-header{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:10px}
+.user-header .role-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:6px;text-transform:uppercase;letter-spacing:0.5px}
+.role-badge.admin{background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.2)}
+.role-badge.user{background:rgba(52,211,153,0.15);color:#4ade80;border:1px solid rgba(52,211,153,0.2)}
+.logout-btn{font-size:11px;color:#f87171;cursor:pointer;font-weight:600;transition:opacity 0.2s}
+.logout-btn:hover{opacity:0.7}
+.auth-overlay{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.auth-overlay.hidden{display:none}
+.auth-card{background:rgba(19,22,27,0.6);backdrop-filter:blur(20px);border:1px solid rgba(30,35,48,0.8);border-radius:20px;padding:40px;max-width:400px;width:100%;text-align:center}
+.auth-card .logo{font-size:48px;margin-bottom:10px;filter:drop-shadow(0 0 20px rgba(102,126,234,0.3))}
+.auth-card h1{font-size:24px;font-weight:800;background:linear-gradient(135deg,#667eea,#764ba2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.auth-card p{color:#6b7280;font-size:13px;margin:6px 0 20px}
+.auth-card input{width:100%;padding:13px 16px;background:rgba(10,11,14,0.8);border:1px solid #1e2330;border-radius:10px;color:#e8eaed;font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:border-color 0.2s;text-align:center;letter-spacing:2px}
+.auth-card input:focus{border-color:#667eea;box-shadow:0 0 0 3px rgba(102,126,234,0.1)}
+.auth-card button{width:100%;padding:13px;margin-top:10px;background:linear-gradient(135deg,#667eea,#764ba2);border:none;border-radius:10px;color:white;font-size:14px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:all 0.2s}
+.auth-card button:hover{transform:translateY(-1px);box-shadow:0 8px 25px rgba(102,126,234,0.3)}
+.auth-card .auth-error{color:#f87171;font-size:12px;margin-top:10px;display:none}
+.app-content{display:none}
+.app-content.show{display:block;animation:fadeIn 0.4s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:768px){
+.container{padding:16px 12px 40px}
+.header h1{font-size:24px}
+.stats-bar{grid-template-columns:1fr;gap:10px}
+.main-card{padding:20px;border-radius:16px}
+.input-wrapper{min-width:100%}
+.select-wrapper{min-width:100%}
+.result-grid{grid-template-columns:1fr 1fr}
+.result-header{flex-direction:column;align-items:flex-start}
+.result-message{text-align:left;max-width:100%}
+.guide-grid{grid-template-columns:1fr}
+.history-item{grid-template-columns:auto 1fr}
+.history-item .h-msg,.history-item .h-time{grid-column:2}
+.history-item .h-time{margin-top:-4px}
+}
+@media(max-width:480px){.result-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="bg-glow"></div>
+<div class="bg-glow2"></div>
+
+<div class="auth-overlay" id="authOverlay">
+    <div class="auth-card">
+        <div class="logo">&#128179;</div>
+        <h1>CC Checker</h1>
+        <p>Anahtarınızı girerek giriş yapın</p>
+        <input type="password" id="keyInput" placeholder="Anahtarınızı girin" autocomplete="off">
+        <button onclick="doLogin()">Giriş Yap</button>
+        <div class="auth-error" id="authError"></div>
+    </div>
+</div>
+
+<div class="app-content" id="appContent">
+<div class="container">
+    <div class="header">
+        <span class="header-icon">&#128179;</span>
+        <h1>CC Checker</h1>
+        <div class="user-header">
+            <span id="userLabel"></span>
+            <span class="role-badge admin" id="roleBadge">Admin</span>
+            <span class="logout-btn" onclick="doLogout()">Çıkış Yap</span>
+        </div>
+    </div>
+
+    <div class="stats-bar">
+        <div class="stat-card">
+            <div class="stat-icon blue">&#9679;</div>
+            <div class="stat-info">
+                <div class="stat-value" id="balanceValue">--</div>
+                <div class="stat-label">Bakiye</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon purple">&#9881;</div>
+            <div class="stat-info">
+                <div class="stat-value" id="gateValue">--</div>
+                <div class="stat-label">Gate</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon green">&#128202;</div>
+            <div class="stat-info">
+                <div class="stat-value" id="checkedValue">0</div>
+                <div class="stat-label">Kontrol</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-card">
+        <div class="form-label">
+            <span>Kart Bilgileri</span>
+            <span class="hint" onclick="document.getElementById('cardInput').focus()">odaklan</span>
+        </div>
+
+        <form id="checkForm" autocomplete="off">
+            <div class="input-group">
+                <div class="input-wrapper">
+                    <input type="text" id="cardInput" placeholder="43474xxxxxxxxxxx|xx|xx|xxx" spellcheck="false" autocomplete="off">
+                    <div class="input-format-hint">
+                        <span class="tag" data-part="pan">PAN</span>
+                        <span class="tag" data-part="sep">|</span>
+                        <span class="tag" data-part="month">AA</span>
+                        <span class="tag" data-part="sep">|</span>
+                        <span class="tag" data-part="year">YY</span>
+                        <span class="tag" data-part="sep">|</span>
+                        <span class="tag" data-part="cvv">CVV</span>
+                    </div>
+                </div>
+                <div class="select-wrapper">
+                    <select id="gateSelect">
+                        <option value="">Gate Seç</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-check" id="checkBtn">
+                <span class="btn-text">&#9654; Kontrol Et</span>
+                <span class="spinner"></span>
+            </button>
+        </form>
+
+        <div class="shortcuts">
+            <kbd id="quickFill1">4111xxxxxxxxxxx|12|28|123</kbd>
+            <kbd id="quickFill2">43474xxxxxxxxxxx|10|26|456</kbd>
+            <kbd onclick="document.getElementById('cardInput').value='';document.getElementById('cardInput').focus()">&#9003; Temizle</kbd>
+        </div>
+
+        <div class="result-area" id="resultArea">
+            <div class="result-card" id="resultCard">
+                <div class="result-header">
+                    <div class="result-status-badge">
+                        <div class="badge-icon" id="badgeIcon">&#9989;</div>
+                        <div>
+                            <div class="badge-text" id="statusText">ONAYLANDI</div>
+                        </div>
+                    </div>
+                    <div class="result-message" id="resultMessage"></div>
+                </div>
+                <div class="result-grid">
+                    <div class="result-item"><div class="r-label">Kart</div><div class="r-value mono" id="resultCardNum">--</div></div>
+                    <div class="result-item"><div class="r-label">BIN</div><div class="r-value mono" id="resultBin">--</div></div>
+                    <div class="result-item"><div class="r-label">Durum</div><div class="r-value" id="resultStatus">--</div></div>
+                    <div class="result-item"><div class="r-label">Gate</div><div class="r-value" id="resultGate">--</div></div>
+                    <div class="result-item"><div class="r-label">Süre</div><div class="r-value" id="resultTime">--</div></div>
+                    <div class="result-item"><div class="r-label">Bakiye</div><div class="r-value" id="resultBalance">--</div></div>
+                </div>
+                <div class="result-actions">
+                    <button onclick="copyResult()">&#128203; Kopyala</button>
+                    <button onclick="document.getElementById('resultArea').classList.remove('show');document.getElementById('cardInput').focus()">&#10005; Kapat</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="history-section">
+        <div class="history-header">
+            <h3>&#128203; Geçmiş</h3>
+            <span class="count" id="historyCount">0 kontrol</span>
+        </div>
+        <div class="history-list" id="historyList">
+            <div class="history-empty">Henüz kontrol yapılmadı. Yukarıdan kart girin.</div>
+        </div>
+    </div>
+
+    <div class="guide-section">
+        <h3>&#128161; Kullanım Kılavuzu</h3>
+        <div class="guide-grid">
+            <div class="guide-card">
+                <div class="g-icon">&#128424;</div>
+                <h4>Kart Formatı</h4>
+                <p>Kartı <code>PAN|AA|YY|CVV</code> formatında girin — örn. <code>4347441234567890|12|28|123</code>. Sistem API'ye gönderir.</p>
+            </div>
+            <div class="guide-card">
+                <div class="g-icon">&#128681;</div>
+                <h4>Gate Nedir?</h4>
+                <p>Gate'ler farklı işlem yollarıdır. <strong>Global</strong> varsayılan gate'dir. Red alırsan farklı bir gate dene.</p>
+            </div>
+            <div class="guide-card">
+                <div class="g-icon">&#128200;</div>
+                <h4>Sonuçlar</h4>
+                <p><span style="color:#4ade80">Onaylandı</span> = kart çalıştı. <span style="color:#f87171">Red</span> = kart reddedildi. <span style="color:#fbbf24">Hata</span> = sistem sorunu.</p>
+            </div>
+            <div class="guide-card">
+                <div class="g-icon">&#9889;</div>
+                <h4>İpuçları</h4>
+                <p>Hızlı doldurma butonlarını kullan. Sonucu tek tıkla kopyala. Bakiye ve gate istatistikleri otomatik güncellenir.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+</div>
+</div>
+
+<script>
+const API = '';
+let apiKey = localStorage.getItem('ck_key') || '';
+let role = '';
+let checkedCount = 0;
+let lastResult = null;
+let gateNames = {};
+
+function toast(msg) {
+    const t = document.getElementById('toast');
+    t.innerHTML = msg;
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+async function doLogin() {
+    const key = document.getElementById('keyInput').value.trim();
+    const errEl = document.getElementById('authError');
+    if (!key) { errEl.textContent = 'Anahtar girin'; errEl.style.display = 'block'; return; }
+    try {
+        const resp = await fetch(API + '/api/login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({key})
+        });
+        const data = await resp.json();
+        if (data.status === 'success') {
+            apiKey = key;
+            role = data.role;
+            localStorage.setItem('ck_key', apiKey);
+            showApp(data.role, data.label);
+        } else {
+            errEl.textContent = 'Geçersiz anahtar';
+            errEl.style.display = 'block';
+        }
+    } catch(e) {
+        errEl.textContent = 'Bağlantı hatası';
+        errEl.style.display = 'block';
+    }
+}
+
+function showApp(r, label) {
+    document.getElementById('authOverlay').classList.add('hidden');
+    document.getElementById('appContent').classList.add('show');
+    document.getElementById('userLabel').textContent = label || (r === 'admin' ? 'Admin' : 'Kullanıcı');
+    const badge = document.getElementById('roleBadge');
+    if (r === 'admin') {
+        badge.textContent = 'Admin';
+        badge.className = 'role-badge admin';
+    } else {
+        badge.textContent = 'Kullanıcı';
+        badge.className = 'role-badge user';
+    }
+    loadStats();
+}
+
+function doLogout() {
+    localStorage.removeItem('ck_key');
+    apiKey = '';
+    role = '';
+    document.getElementById('appContent').classList.remove('show');
+    document.getElementById('authOverlay').classList.remove('hidden');
+    document.getElementById('keyInput').value = '';
+    document.getElementById('authError').style.display = 'none';
+}
+
+async function loadStats() {
+    try {
+        const [balRes, gateRes] = await Promise.all([
+            fetch(API + '/api/balance', {headers: {'X-Api-Key': apiKey}}),
+            fetch(API + '/api/gates', {headers: {'X-Api-Key': apiKey}})
+        ]);
+        const balData = await balRes.json();
+        const gateData = await gateRes.json();
+        if (balData.status === 'success') {
+            document.getElementById('balanceValue').textContent = balData.balance?.toLocaleString() || balData.balance;
+        }
+        if (gateData.status === 'success') {
+            const active = gateData.gates.filter(g => g.active);
+            document.getElementById('gateValue').textContent = active.length + ' / ' + gateData.gates.length;
+            const sel = document.getElementById('gateSelect');
+            sel.innerHTML = '<option value="">Varsayılan Gate</option>';
+            gateData.gates.forEach(g => {
+                gateNames[g.id] = g.name;
+                const opt = document.createElement('option');
+                opt.value = g.id;
+                opt.textContent = g.name + (g.id === gateData.default_gate ? ' (varsayılan)' : '') + (g.active ? '' : ' [pasif]');
+                sel.appendChild(opt);
+            });
+        }
+    } catch(e) {}
+}
+
+document.getElementById('checkForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('checkBtn');
+    const input = document.getElementById('cardInput');
+    const card = input.value.trim();
+    const gate = document.getElementById('gateSelect').value;
+    if (!card || card.split('|').length !== 4) {
+        toast('&#9888; Kartı PAN|AA|YY|CVV formatında girin');
+        input.focus();
+        return;
+    }
+    btn.classList.add('loading');
+    btn.disabled = true;
+    document.getElementById('resultArea').classList.remove('show');
+    try {
+        const resp = await fetch(API + '/api/check', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'X-Api-Key': apiKey},
+            body: JSON.stringify({card, gate: gate || undefined})
+        });
+        const data = await resp.json();
+        showResult(data);
+        addHistory(data);
+        checkedCount++;
+        document.getElementById('checkedValue').textContent = checkedCount;
+        document.getElementById('historyCount').textContent = checkedCount + ' kontrol' + (checkedCount !== 1 ? '' : '');
+        if (data.balance !== undefined) {
+            document.getElementById('balanceValue').textContent = Number(data.balance).toLocaleString();
+        }
+    } catch(e) {
+        showResult({status: 'error', message: 'Bağlantı hatası'});
+        toast('&#9888; Bağlantı hatası');
+    } finally {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+    }
+});
+
+function showResult(data) {
+    lastResult = data;
+    const area = document.getElementById('resultArea');
+    const card = document.getElementById('resultCard');
+    const icon = document.getElementById('badgeIcon');
+    const text = document.getElementById('statusText');
+    card.className = 'result-card';
+    if (data.status === 'approved') {
+        card.classList.add('status-approved');
+        text.textContent = 'ONAYLANDI';
+        icon.innerHTML = '&#9989;';
+        icon.className = 'badge-icon approved';
+        document.getElementById('resultMessage').textContent = data.message || 'Kart onaylandı';
+    } else if (data.status === 'declined') {
+        card.classList.add('status-declined');
+        text.textContent = 'REDDEDİLDİ';
+        icon.innerHTML = '&#10060;';
+        icon.className = 'badge-icon declined';
+        document.getElementById('resultMessage').textContent = data.message || 'Kart reddedildi';
+    } else {
+        card.classList.add('status-error');
+        text.textContent = 'HATA';
+        icon.innerHTML = '&#9888;';
+        icon.className = 'badge-icon error';
+        document.getElementById('resultMessage').textContent = data.message || 'Sistem hatası';
+    }
+    text.style.color = icon.style.color = data.status === 'approved' ? '#4ade80' : data.status === 'declined' ? '#f87171' : '#fbbf24';
+    document.getElementById('resultCardNum').textContent = data.card || '--';
+    document.getElementById('resultBin').textContent = data.bin || '--';
+    document.getElementById('resultStatus').textContent = (data.status || '--').toUpperCase();
+    document.getElementById('resultStatus').style.color = text.style.color;
+    document.getElementById('resultGate').textContent = gateNames[data.gate] || 'Gate ' + data.gate || '--';
+    document.getElementById('resultTime').textContent = data.time || '--';
+    document.getElementById('resultBalance').textContent = data.balance !== undefined ? Number(data.balance).toLocaleString() : '--';
+    area.classList.add('show');
+    area.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function addHistory(data) {
+    const list = document.getElementById('historyList');
+    const empty = list.querySelector('.history-empty');
+    if (empty) empty.remove();
+    const item = document.createElement('div');
+    item.className = 'history-item';
+    const emoji = data.status === 'approved' ? '&#9989;' : data.status === 'declined' ? '&#10060;' : '&#9888;';
+    const color = data.status === 'approved' ? '#4ade80' : data.status === 'declined' ? '#f87171' : '#fbbf24';
+    item.innerHTML = `<span class="h-emoji">${emoji}</span><span class="h-card" title="${data.card||'--'}">${data.card||'--'}</span><span class="h-msg" title="${data.message||'--'}">${data.message||'--'}</span><span class="h-time">${data.time||'--'}</span>`;
+    item.style.borderLeft = '3px solid ' + color;
+    list.prepend(item);
+    while (list.children.length > 100) list.removeChild(list.lastChild);
+}
+
+function copyResult() {
+    if (!lastResult) return;
+    const lines = [
+        '=== CC Checker Sonucu ===',
+        'Durum: ' + (lastResult.status || '--').toUpperCase(),
+        'Kart: ' + (lastResult.card || '--'),
+        'BIN: ' + (lastResult.bin || '--'),
+        'Mesaj: ' + (lastResult.message || '--'),
+        'Gate: ' + (lastResult.gate || '--'),
+        'Sure: ' + (lastResult.time || '--'),
+        'Bakiye: ' + (lastResult.balance || '--'),
+        '========================'
+    ];
+    navigator.clipboard.writeText(lines.join('\n')).then(() => toast('&#128203; Kopyalandı')).catch(() => toast('&#9888; Kopyalanamadı'));
+}
+
+document.getElementById('cardInput').addEventListener('input', function() {
+    const parts = this.value.split('|');
+    document.querySelectorAll('.input-format-hint .tag').forEach(t => {
+        const p = t.dataset.part;
+        t.classList.toggle('active',
+            (p === 'sep' && parts.length >= 2) ||
+            (p === 'pan' && parts[0]) ||
+            (p === 'month' && parts.length >= 2 && parts[1]) ||
+            (p === 'year' && parts.length >= 3 && parts[2]) ||
+            (p === 'cvv' && parts.length >= 4 && parts[3])
+        );
+    });
+});
+
+document.getElementById('quickFill1').addEventListener('click', function() {
+    document.getElementById('cardInput').value = this.textContent;
+    document.getElementById('cardInput').dispatchEvent(new Event('input'));
+    document.getElementById('cardInput').focus();
+});
+document.getElementById('quickFill2').addEventListener('click', function() {
+    document.getElementById('cardInput').value = this.textContent;
+    document.getElementById('cardInput').dispatchEvent(new Event('input'));
+    document.getElementById('cardInput').focus();
+});
+
+document.getElementById('keyInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') doLogin();
+});
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && e.target.id === 'cardInput') {
+        document.getElementById('checkForm').dispatchEvent(new Event('submit'));
+    }
+    if (e.key === 'Escape') {
+        document.getElementById('resultArea').classList.remove('show');
+    }
+});
+
+if (apiKey) {
+    fetch(API + '/api/me', {headers: {'X-Api-Key': apiKey}}).then(r => r.json()).then(d => {
+        if (d.status === 'success') { role = d.role; showApp(d.role, d.label); }
+        else { localStorage.removeItem('ck_key'); apiKey = ''; }
+    }).catch(() => {});
+}
+</script>
+</body>
+</html>
